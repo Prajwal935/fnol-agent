@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.parser import router
+from app.api.upload import router
 
 app = FastAPI(title="FNOL AI Agent")
 
