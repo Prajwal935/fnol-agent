@@ -1,95 +1,64 @@
-from typing import Dict
-
-
-def classify_claim(fields: Dict):
+def classify_claim(fields: dict, validation: dict):
     """
-    Classify the FNOL claim,
-    decide routing,
-    and explain the reason.
+    Classify and route the FNOL claim according to the assessment rules.
     """
 
-    text = ""
+    claim_type = (fields.get("claim_type") or "Unknown").strip()
 
-    # Combine extracted fields into one searchable string
-    for value in fields.values():
-        if value:
-            text += str(value).lower() + " "
+    description = (fields.get("description") or "").lower()
 
-    # ------------------------
-    # AUTO CLAIM
-    # ------------------------
-    auto_keywords = [
-        "vehicle",
-        "car",
-        "truck",
-        "bike",
-        "motorcycle",
-        "road",
-        "collision",
-        "accident",
-        "rear-ended",
-        "license",
-        "traffic"
-    ]
+    estimated_damage = fields.get("estimated_damage")
 
-    if any(word in text for word in auto_keywords):
+    if validation["missing_fields"]:
         return {
-            "claim_type": "Auto",
-            "route_to": "Auto Claims Team",
-            "reason": "The document contains vehicle-related information and describes a road accident."
+            "claim_type": claim_type,
+            "route": "Manual Review",
+            "confidence": 0.95,
+            "reason": "Mandatory fields are missing, therefore the claim requires manual review."
         }
 
-    # ------------------------
-    # PROPERTY CLAIM
-    # ------------------------
-    property_keywords = [
-        "house",
-        "home",
-        "building",
-        "property",
-        "roof",
-        "fire",
-        "flood",
-        "storm",
-        "earthquake",
-        "window"
-    ]
+    fraud_keywords = ["fraud", "staged", "inconsistent"]
 
-    if any(word in text for word in property_keywords):
+    if any(word in description for word in fraud_keywords):
         return {
-            "claim_type": "Property",
-            "route_to": "Property Claims Team",
-            "reason": "The document describes damage to a property or building."
+            "claim_type": claim_type,
+            "route": "Investigation Flag",
+            "confidence": 0.98,
+            "reason": "Suspicious keywords found in the incident description."
         }
 
-    # ------------------------
-    # HEALTH CLAIM
-    # ------------------------
-    health_keywords = [
-        "hospital",
-        "doctor",
-        "medical",
-        "injury",
-        "patient",
-        "surgery",
-        "treatment",
-        "health",
-        "clinic"
-    ]
-
-    if any(word in text for word in health_keywords):
+    if claim_type.lower() == "injury":
         return {
-            "claim_type": "Health",
-            "route_to": "Health Claims Team",
-            "reason": "The document contains medical treatment or injury information."
+            "claim_type": "Injury",
+            "route": "Specialist Queue",
+            "confidence": 0.97,
+            "reason": "The claim type is Injury and requires specialist handling."
         }
 
-    # ------------------------
-    # DEFAULT
-    # ------------------------
+    if estimated_damage:
+
+        try:
+
+            damage = int(
+                str(estimated_damage)
+                .replace(",", "")
+                .replace("₹", "")
+                .strip()
+            )
+
+            if damage < 25000:
+                return {
+                    "claim_type": claim_type,
+                    "route": "Fast-track",
+                    "confidence": 0.96,
+                    "reason": "Estimated damage is below ₹25,000."
+                }
+
+        except ValueError:
+            pass
+
     return {
-        "claim_type": "Auto",
-        "route_to": "Auto Claims Team",
-        "reason": "Vehicle accident detected.",
-        "confidence": 0.95
+        "claim_type": claim_type,
+        "route": "Standard Claims Processing",
+        "reason": "Claim meets the standard processing criteria."
     }

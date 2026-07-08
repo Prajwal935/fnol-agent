@@ -1,55 +1,50 @@
-from datetime import datetime
+def validate_fields(fields: dict):
+    """
+    Validate extracted FNOL fields and identify missing mandatory fields.
+    """
 
-
-def validate_fields(fields):
-
-    required_fields = [
+    mandatory_fields = [
+        # Policy Information
         "policy_number",
-        "claim_number",
-        "insured_name",
-        "date_of_loss",
-        "vehicle",
-        "description"
+        "policyholder_name",
+        "effective_dates",
+
+        # Incident Information
+        "incident_date",
+        "incident_time",
+        "location",
+        "description",
+
+        # Involved Parties
+        "claimant",
+        "third_parties",
+        "contact_details",
+
+        # Asset Details
+        "asset_type",
+        "asset_id",
+        "estimated_damage",
+
+        # Other Mandatory Fields
+        "claim_type",
+        "attachments",
+        "initial_estimate"
     ]
 
     missing_fields = []
 
-    for field in required_fields:
-        if not fields.get(field):
+    for field in mandatory_fields:
+        value = fields.get(field)
+
+        if value is None or str(value).strip() == "":
             missing_fields.append(field)
 
-    # Validate date format
-    date_valid = True
-
-    if fields.get("date_of_loss"):
-        try:
-            loss_date = datetime.strptime(
-                fields["date_of_loss"],
-                "%Y-%m-%d"
-            )
-
-            # Check if the date is in the future
-            future_date = loss_date.date() > datetime.today().date()
-
-        except ValueError:
-            date_valid = False
-            future_date = False
-
+    if missing_fields:
+        status = "Invalid"
     else:
-        date_valid = False
-        future_date = False
-
-    # Overall validation
-    is_valid = (
-        len(missing_fields) == 0
-        and date_valid
-        and not future_date
-    )
+        status = "Valid"
 
     return {
-        "missing_fields": missing_fields,
-        "date_valid": date_valid,
-        "future_date": future_date,
-        "is_valid": is_valid,
-        "status": "Valid" if is_valid else "Invalid"
+        "status": status,
+        "missing_fields": missing_fields
     }

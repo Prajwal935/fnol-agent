@@ -1,15 +1,23 @@
-def generate_summary(fields, classification):
+def generate_summary(text: str) -> str:
     """
-    Generate a short summary of the FNOL claim.
+    Generates a short summary of the FNOL document.
     """
 
-    insured = fields.get("insured_name") or "Unknown Insured"
-    incident_date = fields.get("date_of_loss") or "Unknown Date"
-    claim_type = classification["claim_type"]
+    if not text:
+        return "No text available for summarization."
 
-    description = fields.get("description") or "No description provided."
+    clean_text = " ".join(text.split())
 
-    return (
-        f"{claim_type} claim reported by {insured} "
-        f"on {incident_date}. {description}"
-    )
+    max_length = 250
+
+    if len(clean_text) <= max_length:
+        return clean_text
+
+    summary = clean_text[:max_length]
+
+    last_space = summary.rfind(" ")
+
+    if last_space != -1:
+        summary = summary[:last_space]
+
+    return summary + "..."
