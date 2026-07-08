@@ -1,5 +1,6 @@
 import fitz
 from fastapi import APIRouter, UploadFile, File
+from app.extractor import extract_fields
 
 router = APIRouter()
 
@@ -30,7 +31,9 @@ async def upload_document(file: UploadFile = File(...)):
             "error": "Unsupported file type"
         }
 
+    fields = extract_fields(text)
+
     return {
         "filename": file.filename,
-        "text": text
+        "fields": fields
     }
