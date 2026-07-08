@@ -1,6 +1,7 @@
 import fitz
 from fastapi import APIRouter, UploadFile, File
 from app.extractor import extract_fields
+from app.validator import validate_fields
 
 router = APIRouter()
 
@@ -32,8 +33,13 @@ async def upload_document(file: UploadFile = File(...)):
         }
 
     fields = extract_fields(text)
-
+    validation = validate_fields(fields)
+    
     return {
+
         "filename": file.filename,
-        "fields": fields
+
+        "fields": fields,
+
+        "validation": validation
     }
