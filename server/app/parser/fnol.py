@@ -1,7 +1,6 @@
 import fitz
 from fastapi import UploadFile
 
-
 async def extract_text(file: UploadFile):
     if file.filename.endswith(".pdf"):
 
@@ -25,3 +24,4 @@ async def extract_text(file: UploadFile):
 
     else:
         return None
+
