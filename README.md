@@ -2,13 +2,13 @@
 
 ## Overview
 
-This project is a lightweight AI agent that processes First Notice of Loss (FNOL) documents.
+The FNOL AI Agent is a lightweight FastAPI-based backend application that processes First Notice of Loss (FNOL) documents.
 
-The agent performs the following tasks:
+The application performs the following tasks:
 
-- Extracts key information from FNOL PDF/TXT documents
+- Extracts key information from FNOL PDF and TXT documents
 - Identifies missing mandatory fields
-- Classifies the claim
+- Classifies the claim based on business rules
 - Routes the claim to the appropriate workflow
 - Returns the result in the required JSON format
 
@@ -16,18 +16,19 @@ The agent performs the following tasks:
 
 ## Features
 
-- PDF and TXT document support
-- Field extraction using Regular Expressions
-- Missing field validation
-- Rule-based claim routing
-- JSON response as required by the assessment
+- Upload PDF and TXT documents
+- PDF text extraction using PyMuPDF
+- Field extraction using Regular Expressions (Regex)
+- Mandatory field validation
+- Rule-based claim classification
+- JSON response
 
 ---
 
 ## Routing Rules
 
 | Condition | Route |
-|----------|-------|
+|-----------|-------|
 | Estimated Damage < 25000 | Fast-track |
 | Mandatory fields missing | Manual Review |
 | Description contains "fraud", "staged", or "inconsistent" | Investigation Flag |
@@ -47,67 +48,70 @@ The agent performs the following tasks:
 
 ## Project Structure
 
-Project Structure
-
-```
-server/
+```text
+FNOL-AGENT/
 │
-├── app/
-│   ├── api/
-│   │   └── upload.py
+├── server/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── upload.py
+│   │   │
+│   │   ├── parser/
+│   │   │   └── fnol.py
+│   │   │
+│   │   ├── classifier.py
+│   │   ├── extractor.py
+│   │   ├── main.py
+│   │   ├── schemas.py
+│   │   └── validator.py
 │   │
-│   ├── parser/
-│   │   └── fnol.py
-│   │
-│   ├── classifier.py
-│   ├── extractor.py
-│   ├── main.py
-│   ├── schemas.py
-│   ├── summarizer.py
-│   └── validator.py
+│   └── requirements.txt
 │
-├── requirements.txt
+├── venv/
 ├── .gitignore
 └── README.md
 ```
 
+---
+
 ## Installation
 
-Clone the repository
+### Clone the repository
 
 ```bash
 git clone <your-github-repository-url>
 ```
 
-Go to project folder
+### Navigate to the project
 
 ```bash
-cd fnol-ai-agent
+cd FNOL-AGENT
 ```
 
-Create virtual environment
+### Create a virtual environment
 
 ```bash
 python -m venv venv
 ```
 
-Activate virtual environment
+### Activate the virtual environment
 
-Windows
+**Windows**
 
 ```bash
 venv\Scripts\activate
 ```
 
-Linux / Mac
+**Linux / macOS**
 
 ```bash
 source venv/bin/activate
 ```
 
-Install dependencies
+### Install dependencies
 
 ```bash
+cd server
 pip install -r requirements.txt
 ```
 
@@ -115,11 +119,17 @@ pip install -r requirements.txt
 
 ## Run the Project
 
+From the **server** directory, run:
+
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Open Swagger UI
+---
+
+## API Documentation
+
+After starting the server, open:
 
 ```
 http://127.0.0.1:8000/docs
@@ -131,15 +141,17 @@ http://127.0.0.1:8000/docs
 
 ### Upload FNOL Document
 
+**POST**
+
 ```
-POST /upload
+/upload
 ```
 
 Upload a PDF or TXT FNOL document.
 
 ---
 
-## Sample Output
+## Sample Response
 
 ```json
 {
@@ -171,4 +183,4 @@ Upload a PDF or TXT FNOL document.
 
 ## Author
 
-Prajwal R
+**Prajwal R**
