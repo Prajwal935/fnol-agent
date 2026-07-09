@@ -8,10 +8,7 @@ from app.classifier import classify_claim
 router = APIRouter()
 
 
-@router.post(
-    "/upload",
-    status_code=status.HTTP_200_OK
-)
+@router.post("/upload",status_code=status.HTTP_200_OK)
 async def upload_document(file: UploadFile = File(...)):
     try:
         text = await extract_text(file)
